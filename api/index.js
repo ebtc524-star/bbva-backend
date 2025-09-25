@@ -84,7 +84,7 @@ function encrypt(text) {
     const algorithm = 'aes-256-cbc';
     const key = crypto.scryptSync(ENCRYPT_KEY, 'salt', 32);
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(algorithm, key);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return iv.toString('hex') + ':' + encrypted;
@@ -98,7 +98,7 @@ function decrypt(encryptedText) {
         const textParts = encryptedText.split(':');
         const iv = Buffer.from(textParts.shift(), 'hex');
         const encryptedData = textParts.join(':');
-        const decipher = crypto.createDecipher(algorithm, key);
+        const decipher = crypto.createDecipheriv(algorithm, key, iv);
         let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
         return decrypted;
@@ -494,5 +494,6 @@ app.listen(PORT, () => {
     console.log(`🌍 CORS permitido para: ${ALLOWED_ORIGINS.join(', ')}`);
     console.log('✅ Sistema de seguridad activo');
 });
+
 
 module.exports = app;
